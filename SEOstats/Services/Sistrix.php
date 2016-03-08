@@ -83,6 +83,36 @@ class Sistrix extends SEOstats
         }
         return $json_decoded['answer'][0]['sichtbarkeitsindex'][0]['value'];
     }
+    //Jonatan MC 19 Octubre 2015
+    
+    
+     public static function getLinksOverviewByApi($url = false, $db = false)
+    {
+        self::guardApiKey();
+        self::guardApiCredits();
+
+        $url = parent::getUrl($url);
+        $domain = static::getDomainFromUrl($url);
+        $database = static::getValidDatabase($db);
+
+        $dataUrl = sprintf(Config\Services::SISTRIX_API_LINKS_OVERVIEW, Config\ApiKeys::SISTRIX_API_ACCESS_KEY, urlencode($domain), $database);
+
+        $json = static::_getPage($dataUrl);
+
+        if(empty($json)) {
+            return parent::noDataDefaultValue();
+        }
+
+        $json_decoded = (Helper\Json::decode($json, true));
+       
+        if (!isset($json_decoded['answer'][0]['total'][0]['num'])) {
+            return parent::noDataDefaultValue();
+        }
+       
+        return ['total'=>intval($json_decoded['answer'][0]['total'][0]['num']),'hosts'=>intval($json_decoded['answer'][0]['hosts'][0]['num']),'domains'=>intval($json_decoded['answer'][0]['domains'][0]['num'])];
+    }
+    
+    
 
     public static function getApiCredits()
     {
